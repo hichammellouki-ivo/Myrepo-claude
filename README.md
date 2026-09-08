@@ -1,4 +1,4 @@
-# Calculatrice iOS
+# persolette
 
 Une calculatrice native iOS écrite en SwiftUI.
 
@@ -29,8 +29,8 @@ Une calculatrice native iOS écrite en SwiftUI.
 ## Structure du projet
 
 ```
-Calculator/
-  App/CalculatorApp.swift          Point d'entrée SwiftUI
+persolette/
+  App/persoletteApp.swift          Point d'entrée SwiftUI
   Models/CalculatorEngine.swift    Tokenizer + parseur (parenthèses, priorités)
   Models/HistoryEntry.swift        Modèle d'une entrée d'historique
   Models/HistoryStore.swift        Persistance JSON illimitée, regroupement par jour
@@ -41,6 +41,12 @@ Calculator/
   Views/Theme.swift                Couleurs adaptatives + haptique
 project.yml                        Définition du projet pour XcodeGen
 ```
+
+Les noms de types internes (`CalculatorEngine`, `CalculatorViewModel`,
+`CalculatorButtonView`, etc.) gardent le préfixe `Calculator` : ce sont de
+simples noms de types Swift, indépendants du nom du projet ou de l'app —
+seuls le nom du projet, du bundle, et le fichier d'entrée `@main`
+(`persoletteApp`) portent le nom `persolette`.
 
 ## Ouvrir et lancer le projet dans Xcode
 
@@ -56,19 +62,21 @@ brew install xcodegen
 xcodegen generate
 
 # 3. Ouvrir le projet généré
-open Calculator.xcodeproj
+open persolette.xcodeproj
 ```
 
-Dans Xcode : sélectionner le scheme **Calculator**, choisir un simulateur
+Dans Xcode : sélectionner le scheme **persolette**, choisir un simulateur
 iOS (iOS 16 ou plus récent) ou un appareil, puis lancer avec `Cmd+R`.
 
 ### Alternative sans XcodeGen
 
-Si vous préférez ne pas installer XcodeGen, créez un nouveau projet
-**App** dans Xcode (interface SwiftUI, langage Swift, cible iOS 16+),
-puis glissez le dossier `Calculator/` (sans son sous-dossier `App` si
-Xcode a déjà généré son propre fichier `App.swift` — supprimez alors ce
-doublon) dans le projet en cochant "Copy items if needed".
+Si vous avez déjà créé un projet **App** dans Xcode nommé `persolette`
+(interface SwiftUI, langage Swift, cible iOS 16+), supprimez son
+`ContentView.swift` et son fichier `persoletteApp.swift` générés par
+défaut, puis glissez le contenu du dossier `persolette/` de ce dépôt
+(sous-dossiers `App`, `Models`, `ViewModels`, `Views` compris) dans le
+navigateur de projet, en cochant "Copy items if needed" et "Create
+groups".
 
 ## Notes de conception
 

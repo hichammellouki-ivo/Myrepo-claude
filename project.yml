@@ -1,19 +1,19 @@
-name: Calculator
+name: persolette
 options:
-  bundleIdPrefix: com.hicham.calculator
+  bundleIdPrefix: com.hicham.persolette
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
 targets:
-  Calculator:
+  persolette:
     type: application
     platform: iOS
     sources:
-      - path: Calculator
+      - path: persolette
     info:
-      path: Calculator/Info.plist
+      path: persolette/Info.plist
       properties:
-        CFBundleDisplayName: Calculatrice
+        CFBundleDisplayName: persolette
         UILaunchScreen: {}
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
@@ -22,8 +22,8 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.hicham.calculator
-        PRODUCT_NAME: Calculatrice
+        PRODUCT_BUNDLE_IDENTIFIER: com.hicham.persolette
+        PRODUCT_NAME: persolette
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1"
         MARKETING_VERSION: "1.0"
@@ -32,10 +32,10 @@ targets:
         ENABLE_PREVIEWS: YES
         IPHONEOS_DEPLOYMENT_TARGET: "16.0"
 schemes:
-  Calculator:
+  persolette:
     build:
       targets:
-        Calculator: all
+        persolette: all
     run:
       config: Debug
     test:
