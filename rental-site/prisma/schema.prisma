@@ -1,0 +1,187 @@
+// Schéma Prisma — plateforme de location courte durée
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Platform {
+  AIRBNB
+  BOOKING
+  OTHER
+}
+
+enum BlockSource {
+  MANUAL
+  INTERNAL_BOOKING
+  AIRBNB
+  BOOKING
+  OTHER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum DocumentType {
+  ID_CARD
+  PASSPORT
+  DRIVER_LICENSE
+}
+
+enum CheckInStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  CHECKIN_SUBMITTED
+}
+
+enum MessageStatus {
+  SENT
+  SIMULATED
+  FAILED
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime @default(now())
+
+  reviewedCheckIns CheckIn[]
+}
+
+model Listing {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  description    String
+  address        String
+  city           String
+  country        String
+  pricePerNight  Float
+  cleaningFee    Float    @default(0)
+  maxGuests      Int
+  bedrooms       Int
+  bathrooms      Int
+  beds           Int
+  amenities      String   @default("[]") // JSON string array
+  accessDetails  String   @default("") // instructions envoyées après validation du check-in
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  photos         Photo[]
+  calendarFeeds  CalendarFeed[]
+  blockedPeriods BlockedPeriod[]
+  bookings       Booking[]
+}
+
+model Photo {
+  id        String  @id @default(cuid())
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  position  Int     @default(0)
+}
+
+model CalendarFeed {
+  id             String    @id @default(cuid())
+  listingId      String
+  listing        Listing   @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  platform       Platform
+  icalUrl        String
+  lastSyncAt     DateTime?
+  lastSyncStatus String?
+  lastSyncError  String?
+  createdAt      DateTime  @default(now())
+
+  blockedPeriods BlockedPeriod[]
+}
+
+model BlockedPeriod {
+  id             String        @id @default(cuid())
+  listingId      String
+  listing        Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  startDate      DateTime
+  endDate        DateTime
+  source         BlockSource
+  calendarFeedId String?
+  calendarFeed   CalendarFeed? @relation(fields: [calendarFeedId], references: [id], onDelete: Cascade)
+  externalUid    String?
+  note           String?
+  createdAt      DateTime      @default(now())
+
+  @@unique([calendarFeedId, externalUid])
+  @@index([listingId, startDate, endDate])
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  reference   String        @unique
+  listingId   String
+  listing     Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  guestName   String
+  guestEmail  String
+  guestPhone  String
+  startDate   DateTime
+  endDate     DateTime
+  guests      Int
+  totalPrice  Float
+  status      BookingStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+
+  checkIn      CheckIn?
+  messages     OutgoingMessage[]
+}
+
+model CheckIn {
+  id                 String        @id @default(cuid())
+  bookingId          String        @unique
+  booking            Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  guestFullName      String
+  documentType       DocumentType
+  documentFrontPath  String
+  documentBackPath   String?
+  status             CheckInStatus @default(PENDING)
+  rejectionReason    String?
+  accessCode         String?
+  submittedAt        DateTime      @default(now())
+  reviewedAt         DateTime?
+  reviewedByAdminId  String?
+  reviewedByAdmin    Admin?        @relation(fields: [reviewedByAdminId], references: [id])
+
+  notifications      Notification[]
+}
+
+model Notification {
+  id         String            @id @default(cuid())
+  type       NotificationType
+  message    String
+  checkInId  String?
+  checkIn    CheckIn?          @relation(fields: [checkInId], references: [id], onDelete: Cascade)
+  read       Boolean           @default(false)
+  createdAt  DateTime          @default(now())
+}
+
+model OutgoingMessage {
+  id         String        @id @default(cuid())
+  bookingId  String
+  booking    Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  toEmail    String
+  subject    String
+  body       String
+  status     MessageStatus
+  createdAt  DateTime      @default(now())
+}
